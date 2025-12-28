@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import GoalCreatePage from './pages/GoalCreatePage';
+import DashboardPage from './pages/DashboardPage';  // ← New import
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -20,8 +21,14 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* Placeholder for dashboard */}
-        <Route path="/dashboard" element={<div className="p-8 text-center text-2xl">Dashboard coming soon...</div>} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <DashboardPage />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

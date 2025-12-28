@@ -42,9 +42,43 @@ export const useGoal = () => {
         }
     };
 
+    const updateMilestone = async (goalId, milestoneIndex) => {
+        setLoading(true);
+        setError('');
+        setSuccess('');
+        try {
+            const res = await apiClient.put(`/goals/${goalId}/milestone/${milestoneIndex}`);
+            setSuccess('Milestone completed!');
+            return { success: true, data: res.data };
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Failed to update milestone';
+            setError(msg);
+            return { success: false, error: msg };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getCompletedGoals = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const res = await apiClient.get('/goals/completed');
+            return { success: true, data: res.data };
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Failed to fetch completed goals';
+            setError(msg);
+            return { success: false, error: msg };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         createGoal,
         getActiveGoal,
+        updateMilestone,
+        getCompletedGoals,
         loading,
         error,
         success,
