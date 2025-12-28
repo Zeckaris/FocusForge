@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useGoal } from '../hooks/useGoal';
 
 const LoginPage = () => {
-  const { register, login, loading, error, success } = useAuth();
+  const navigate = useNavigate();
+  const { register, login, loading: authLoading, error: authError, success: authSuccess } = useAuth();
+  const { getActiveGoal, loading: goalLoading } = useGoal();
+
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -14,14 +19,25 @@ const LoginPage = () => {
     if (isRegister) {
       await register(name, username, password);
     } else {
-      await login(username, password);
+      const loginResult = await login(username, password);
+      if (loginResult.success) {
+        // Check if user has an active goal
+        const goalResult = await getActiveGoal();
+        if (goalResult.success && goalResult.data) {
+          navigate('/dashboard');
+        } else {
+          navigate('/create-goal');
+        }
+      }
     }
 
-    // Clear password and username after attempt
+    // Clear fields
     setPassword('');
     setUsername('');
     if (isRegister) setName('');
   };
+
+  const loading = authLoading || goalLoading;
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center px-4">
@@ -99,11 +115,7 @@ const LoginPage = () => {
             <button
               type="button"
               className="link link-hover text-sm"
-              onClick={() => {
-                setIsRegister(!isRegister);
-                // Clear messages when switching
-                // error and success are from hook
-              }}
+              onClick={() => setIsRegister(!isRegister)}
             >
               {isRegister
                 ? 'Already have an account? Login'
@@ -111,15 +123,15 @@ const LoginPage = () => {
             </button>
           </div>
 
-          {success && (
+          {authSuccess && (
             <div className="alert alert-success mt-6">
-              <span>{success}</span>
+              <span>{authSuccess}</span>
             </div>
           )}
 
-          {error && (
+          {authError && (
             <div className="alert alert-error mt-6">
-              <span>{error}</span>
+              <span>{authError}</span>
             </div>
           )}
         </div>
