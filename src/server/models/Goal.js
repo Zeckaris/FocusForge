@@ -26,6 +26,9 @@ const goalSchema = new mongoose.Schema({
                 type: Boolean,
                 default: false,
             },
+            completedAt: {           // ← New optional field (minimal addition)
+                type: Date,
+            },
         },
     ],
     isActive: {
