@@ -73,3 +73,60 @@ export const getActiveGoal = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+// Update a specific milestone as done
+export const updateMilestone = async (req, res) => {
+    try {
+        const userId = getUserIdFromToken(req);
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { goalId, milestoneIndex } = req.params;
+        const index = parseInt(milestoneIndex);
+
+        const goal = await Goal.findOne({ _id: goalId, userId });
+        if (!goal || !goal.isActive) {
+            return res.status(404).json({ error: 'Active goal not found' });
+        }
+
+        if (index < 0 || index >= goal.milestones.length || goal.milestones[index].done) {
+            return res.status(400).json({ error: 'Invalid milestone' });
+        }
+
+        // Mark milestone as done and record timestamp
+        goal.milestones[index].done = true;
+        goal.milestones[index].completedAt = new Date();
+
+        // Check if all milestones are completed
+        const allDone = goal.milestones.every(m => m.done);
+        if (allDone) {
+            goal.isActive = false;
+            goal.completedAt = new Date();
+        }
+
+        await goal.save();
+
+        res.json(goal);
+    } catch (err) {
+        console.error('Update milestone error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+// Get all completed goals for the user
+export const getCompletedGoals = async (req, res) => {
+    try {
+        const userId = getUserIdFromToken(req);
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const goals = await Goal.find({ userId, isActive: false }).sort({ completedAt: -1 });
+
+        res.json(goals);
+    } catch (err) {
+        console.error('Get completed goals error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
