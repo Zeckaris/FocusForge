@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
+import goalRoutes from './routes/goal.js';
 
-dotenv.config(); // Load environment variables from .env — only here
+dotenv.config();
 
 const app = express();
 
@@ -17,10 +18,11 @@ mongoose
     .then(() => console.log('Connected to MongoDB Atlas successfully'))
     .catch((err) => console.error('MongoDB connection error:', err));
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/goals', goalRoutes);
 
-// Health check route
+// Health check
 app.get('/', (req, res) => {
     res.json({ message: 'FocusForge API is running' });
 });
