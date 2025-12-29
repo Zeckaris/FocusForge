@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoal } from '../hooks/useGoal';
+import { useAuth } from '../hooks/useAuth'; 
 import confetti from 'canvas-confetti';
 
 const GoalCreatePage = () => {
   const navigate = useNavigate();
   const { createGoal, loading, error, success } = useGoal();
+  const { logout, success: logoutSuccess } = useAuth(); // ← Get logout and message
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -60,14 +62,29 @@ const GoalCreatePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-3xl">
-        {/* Header */}
-        <div className="text-center mb-12">
+        {/* Header with Logout Button */}
+        <div className="text-center mb-12 relative">
           <h1 className="text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 mb-4">
             Define Your Focus
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300">
             One clear goal. Broken down. Executed with intent.
           </p>
+
+          {/* Logout Button - Top Right */}
+          <button
+            onClick={logout}
+            className="absolute top-0 right-0 btn btn-sm btn-outline hover:bg-red-600 hover:border-red-600 hover:text-white"
+          >
+            Logout
+          </button>
+
+          {/* Optional: Show logout success message */}
+          {logoutSuccess && (
+            <div className="alert alert-success mt-6 max-w-md mx-auto">
+              <span>{logoutSuccess}</span>
+            </div>
+          )}
         </div>
 
         {/* Card */}
