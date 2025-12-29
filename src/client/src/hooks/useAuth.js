@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import apiClient from '../services/apiClient';
+import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const navigate = useNavigate();
 
     const register = async (name, username, password) => {
         setLoading(true);
@@ -45,6 +48,9 @@ export const useAuth = () => {
     const logout = () => {
         localStorage.removeItem('token');
         setSuccess('Logged out successfully');
+        setTimeout(() => {
+            navigate('/');
+        }, 1000);
     };
 
     const isAuthenticated = () => !!localStorage.getItem('token');
@@ -57,7 +63,7 @@ export const useAuth = () => {
         loading,
         error,
         success,
-        setError, // to clear error manually if needed
+        setError,
         setSuccess,
     };
 };
