@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoal } from '../hooks/useGoal';
-import { useAuth } from '../hooks/useAuth'; // ← New import
 import confetti from 'canvas-confetti';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
     const { getActiveGoal, updateMilestone, getCompletedGoals, loading } = useGoal();
-    const { logout, success: logoutSuccess } = useAuth(); // ← Get logout and message
 
     const [activeGoal, setActiveGoal] = useState(null);
     const [completedGoals, setCompletedGoals] = useState([]);
@@ -69,29 +67,14 @@ const DashboardPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-sky-50 to-cyan-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-6 py-14">
             <div className="max-w-5xl mx-auto space-y-20">
 
-                {/* Header with Logout Button */}
-                <header className="text-center space-y-4 relative">
+                {/* Header */}
+                <header className="text-center space-y-4">
                     <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">
                         Welcome Back
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400 text-lg">
                         Small steps. Consistent progress.
                     </p>
-
-                    {/* Logout Button - Top Right */}
-                    <button
-                        onClick={logout}
-                        className="absolute top-0 right-0 btn btn-sm btn-outline hover:bg-red-600 hover:border-red-600 hover:text-white"
-                    >
-                        Logout
-                    </button>
-
-                    {/* Optional: Show logout success message */}
-                    {logoutSuccess && (
-                        <div className="alert alert-success mt-6 max-w-md mx-auto">
-                            <span>{logoutSuccess}</span>
-                        </div>
-                    )}
                 </header>
 
                 {loading && (
@@ -117,38 +100,50 @@ const DashboardPage = () => {
                                 )}
                             </div>
 
-                            {/* Circular Progress */}
-                            <div className="relative w-32 h-32">
-                                <svg className="w-full h-full -rotate-90">
-                                    <circle
-                                        cx="64"
-                                        cy="64"
-                                        r="56"
-                                        stroke="currentColor"
-                                        strokeWidth="10"
-                                        fill="transparent"
-                                        className="text-gray-200 dark:text-gray-700"
-                                    />
-                                    <circle
-                                        cx="64"
-                                        cy="64"
-                                        r="56"
-                                        stroke="currentColor"
-                                        strokeWidth="10"
-                                        fill="transparent"
-                                        strokeDasharray={2 * Math.PI * 56}
-                                        strokeDashoffset={
-                                            2 * Math.PI * 56 * (1 - percent / 100)
-                                        }
-                                        className="text-indigo-600 transition-all duration-700"
-                                    />
-                                </svg>
+                            {/* Circular Progress + Streak */}
+                            <div className="flex flex-col items-center gap-4">
+                                {/* Circular Progress */}
+                                <div className="relative w-32 h-32">
+                                    <svg className="w-full h-full -rotate-90">
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="currentColor"
+                                            strokeWidth="10"
+                                            fill="transparent"
+                                            className="text-gray-200 dark:text-gray-700"
+                                        />
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="currentColor"
+                                            strokeWidth="10"
+                                            fill="transparent"
+                                            strokeDasharray={2 * Math.PI * 56}
+                                            strokeDashoffset={
+                                                2 * Math.PI * 56 * (1 - percent / 100)
+                                            }
+                                            className="text-indigo-600 transition-all duration-700"
+                                        />
+                                    </svg>
 
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-2xl font-bold">
-                                        {percent}%
-                                    </span>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-3xl font-bold">
+                                            {percent}%
+                                        </span>
+                                    </div>
                                 </div>
+
+                                {/* === CR-002: Streak Counter – Clean & Visible === */}
+                                <div className="text-center">
+                                    <span className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">
+                                        {(activeGoal.streak || 0)} day{(activeGoal.streak !== 1) ? 's' : ''} streak
+                                    </span>
+                                    <span className="ml-2 text-xl">🔥</span>
+                                </div>
+                                {/* =============================================== */}
                             </div>
                         </div>
 
