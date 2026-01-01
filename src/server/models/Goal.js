@@ -26,7 +26,7 @@ const goalSchema = new mongoose.Schema({
                 type: Boolean,
                 default: false,
             },
-            completedAt: {           // ← New optional field (minimal addition)
+            completedAt: {
                 type: Date,
             },
         },
@@ -38,6 +38,15 @@ const goalSchema = new mongoose.Schema({
     completedAt: {
         type: Date,
     },
+    // === CR-002: Streak Counter Fields ===
+    streak: {
+        type: Number,
+        default: 0,
+    },
+    lastActivityDate: {
+        type: Date,
+    },
+    // =====================================
 }, {
     timestamps: true,
 });
