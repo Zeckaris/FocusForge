@@ -98,6 +98,33 @@ export const updateMilestone = async (req, res) => {
         goal.milestones[index].done = true;
         goal.milestones[index].completedAt = new Date();
 
+        // === CR-002: Streak Counter Logic Start ===
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize to start of day (ignore time)
+
+        const lastDate = goal.lastActivityDate;
+        if (lastDate) {
+            const lastDay = new Date(lastDate);
+            lastDay.setHours(0, 0, 0, 0);
+
+            const diffDays = Math.floor((today - lastDay) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                // Consecutive day: increment streak
+                goal.streak += 1;
+            } else if (diffDays > 1) {
+                // Gap of more than one day: reset streak to 1
+                goal.streak = 1;
+            }
+            // else: same day → streak unchanged
+        } else {
+            // First milestone ever completed
+            goal.streak = 1;
+        }
+
+        goal.lastActivityDate = today;
+        // === CR-002: Streak Counter Logic End ===
+
         // Check if all milestones are completed
         const allDone = goal.milestones.every(m => m.done);
         if (allDone) {
