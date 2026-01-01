@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoal } from '../hooks/useGoal';
-import { useAuth } from '../hooks/useAuth'; // ← New import
 import confetti from 'canvas-confetti';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
     const { getActiveGoal, updateMilestone, getCompletedGoals, loading } = useGoal();
-    const { logout, success: logoutSuccess } = useAuth(); // ← Get logout and message
 
     const [activeGoal, setActiveGoal] = useState(null);
     const [completedGoals, setCompletedGoals] = useState([]);
@@ -16,11 +14,11 @@ const DashboardPage = () => {
         const loadData = async () => {
             const activeRes = await getActiveGoal();
 
+            // === CR-003: Do NOT redirect if no active goal ===
             if (activeRes.success && activeRes.data) {
                 setActiveGoal(activeRes.data);
-            } else {
-                navigate('/create-goal');
             }
+            // else: stay on dashboard even if no active goal
 
             const completedRes = await getCompletedGoals();
             if (completedRes.success) {
@@ -69,29 +67,14 @@ const DashboardPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-sky-50 to-cyan-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-6 py-14">
             <div className="max-w-5xl mx-auto space-y-20">
 
-                {/* Header with Logout Button */}
-                <header className="text-center space-y-4 relative">
+                {/* Header */}
+                <header className="text-center space-y-4">
                     <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">
                         Welcome Back
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400 text-lg">
                         Small steps. Consistent progress.
                     </p>
-
-                    {/* Logout Button - Top Right */}
-                    <button
-                        onClick={logout}
-                        className="absolute top-0 right-0 btn btn-sm btn-outline hover:bg-red-600 hover:border-red-600 hover:text-white"
-                    >
-                        Logout
-                    </button>
-
-                    {/* Optional: Show logout success message */}
-                    {logoutSuccess && (
-                        <div className="alert alert-success mt-6 max-w-md mx-auto">
-                            <span>{logoutSuccess}</span>
-                        </div>
-                    )}
                 </header>
 
                 {loading && (
@@ -191,6 +174,25 @@ const DashboardPage = () => {
                         </div>
                     </section>
                 )}
+
+                {/* === CR-003: No Active Goal – Show "Start New Goal" Button === */}
+                {!loading && !activeGoal && (
+                    <section className="text-center py-20">
+                        <h2 className="text-4xl font-bold text-gray-700 dark:text-gray-300 mb-6">
+                            Great job on your achievements! 🎉
+                        </h2>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 mb-10">
+                            You're ready to take on a new challenge.
+                        </p>
+                        <button
+                            onClick={() => navigate('/create-goal')}
+                            className="btn btn-lg text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 border-none shadow-2xl text-xl px-12"
+                        >
+                            Start New Goal
+                        </button>
+                    </section>
+                )}
+                {/* =========================================================== */}
 
                 {/* Completed Goals */}
                 {completedGoals.length > 0 && (
