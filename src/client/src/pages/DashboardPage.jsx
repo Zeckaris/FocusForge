@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoal } from '../hooks/useGoal';
+import {useAuth} from '../hooks/useAuth';
 import confetti from 'canvas-confetti';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
     const { getActiveGoal, updateMilestone, getCompletedGoals, loading } = useGoal();
-
+    const { logout, success: logoutSuccess } = useAuth() ;
     const [activeGoal, setActiveGoal] = useState(null);
     const [completedGoals, setCompletedGoals] = useState([]);
 
@@ -75,6 +76,21 @@ const DashboardPage = () => {
                     <p className="text-gray-600 dark:text-gray-400 text-lg">
                         Small steps. Consistent progress.
                     </p>
+
+            {/* Logout Button - Top Right */}
+            <button
+                onClick={logout}
+                className="absolute top-0 right-0 btn btn-sm btn-outline hover:bg-red-600 hover:border-red-600 hover:text-white"
+            >
+                Logout
+            </button>
+
+            {/* Optional: Show logout success message */}
+            {logoutSuccess && (
+            <div className="alert alert-success mt-6 max-w-md mx-auto">
+                <span>{logoutSuccess}</span>
+            </div>
+            )}
                 </header>
 
                 {loading && (
